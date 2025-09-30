@@ -136,7 +136,7 @@ There is no use_ui parameter in the windows version, the state is only a screens
 
 #### 3.2 Edit API Configuration
 
-Get the key for free from our [official web page](https://www.turix.ai).
+Get API now with $20 credit from our [official web page](https://turix.ai/api-platform/).
 Login to our website and the key is at the bottom.
 
 Edit API in `examples/config.json`:
