@@ -25,7 +25,7 @@ Prefer your own model? **Change in `config.json` and go.**
 
 ## Table of Contents
 - [📞 Contact & Community](#-contact--community)
-- [📰 Latest News](#latest-news)
+- [📰 Latest News](#-latest-news)
 - [🖼️ Demos](#️-demos)
 - [✨ Key Features](#-key-features)
 - [📊 Model Performance](#-model-performance)
@@ -47,7 +47,7 @@ Prefer your own model? **Change in `config.json` and go.**
 
 **October 16, 2025** - 🚀 Big news for automation enthusiasts! TuriX now fully supports the cutting-edge **Qwen3-VL** vision-language model, empowering seamless PC automation across both **macOS** and **Windows**. This integration boosts task success rates by up to 15% on complex UI interactions (based on our internal benchmarks), making your desktop workflows smarter and faster than ever. Whether you're scripting daily routines or tackling intricate projects, Qwen3-VL's advanced multimodal reasoning brings unparalleled precision to the table.
 
-Ready to level up? Update your `config.json` with `"model": "qwen3-vl"` and start automating—happy hacking! 🎉
+Ready to level up? Update your `config.json` and start automating—happy hacking! 🎉
 
 *Stay tuned to our [Discord](https://discord.gg/BRxXtnGg) for tips, user stories, and the next big drop.*
 
