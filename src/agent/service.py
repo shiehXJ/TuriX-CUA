@@ -252,6 +252,7 @@ class Agent:
     @time_execution_async('--brain_step')
     async def brain_step(self,) -> dict:
         step_id = self.n_steps
+        logger.info(f"\n📍 Step {self.n_steps}")
         prev_step_id = step_id - 1
         try:
             self.previous_screenshot = self.screenshot_annotated
@@ -323,16 +324,15 @@ class Agent:
 
     @time_execution_async("--actor_step")
     async def actor_step(self, step_info: Optional[AgentStepInfo] = None) -> None:
-        logger.info(f"\n📍 Step {self.n_steps}")
-        state = "No UI state available"  # Default value
+        step_id = self.n_steps
+        state = "" # Default value
         model_output = None
         result: list[ActionResult] = []
-        
+        prev_step_id = step_id - 1
         try:
             #---------------------------
             # 1) Build the UI tree and capture a screenshot
             #---------------------------
-            
             logger.debug(f'Last PID: {self.last_pid}')
             if self.use_ui:
                 self.last_pid = self.get_last_pid()
@@ -341,27 +341,15 @@ class Agent:
             else:
                 state = ''
             self.save_memory()
-            
             # ---------------------------
-            # 2) Define the input message for the agent
+            # 3) Define the input message for the core agent
             # ---------------------------
             if self.n_steps >= 2:
-                self.previous_screenshot = self.screenshot_annotated
-                screenshot = self.mac_tree_builder.capture_screenshot()
-                if self.use_ui:
-                    annotated_screenshot = self.mac_tree_builder.annotate_screenshot(root)
-                    screenshot_filename = f'images/screenshot_to_use_{self.n_steps}.png'
-                    annotated_screenshot.save(screenshot_filename) 
-                # self.screenshot_annotated = annotated_screenshot or screenshot
-                self.screenshot_annotated = screenshot # Use annotated screenshot if you like
-                # delete the local save later
-                screenshot.save(f'images/screenshot_{self.n_steps}.png')
                 if self.use_ui:
                     state_content = [
                         {
                             "type": "text",
-                            "content": f"State is: {state}\n\n The previous action is evaluated to be successful.\n\n Saved information memory: {self.infor_memory}\n\n"
-                            f"{self.short_memory}"
+                            "content": f"Previous step is {prev_step_id}.\n\nYour goal to achieve in this step is: {self.next_goal}\n\nNecessary information remembered is: {self.infor_memory}\n\nCurrent UI state:\n{state}"
                         },
                         {
                             "type": "image_url",
@@ -372,8 +360,10 @@ class Agent:
                     state_content = [
                         {
                             "type": "text",
-                            "content": f"Saved information memory: {self.infor_memory}\n\n"
-                            f"memory fot recent step:{self.short_memory}"
+                            "content": (
+                                f"Your goal to achieve in this step is: {self.next_goal}\n\n"
+                                f"Necessary information remembered is: {self.infor_memory}\n\n"
+                            )
                         },
                         {
                             "type": "image_url",
@@ -381,35 +371,30 @@ class Agent:
                         }
                     ]
             else:
-                screenshot = self.mac_tree_builder.capture_screenshot()
-                self.screenshot_annotated = screenshot
-                screenshot.save(f'images/screenshot_{self.n_steps}.png')
                 state_content = [
                     {
                         "type": "text",
-                        "content": f"State is: {state}"
+                        "content": f"your goal to achieve in this step is: {self.next_goal}"
                     },
                     {
                         "type": "image_url",
-                        "image_url": {"url": screenshot_to_dataurl(screenshot)},
-                    }]
-            self.agent_message_manager._remove_last_AIntool_message()
-            self.agent_message_manager._remove_last_state_message()
-            self.agent_message_manager.add_state_message(state_content, self._last_result, step_info)
-
-
-            input_messages = self.agent_message_manager.get_messages()
-            model_output, raw = await self.get_next_action(input_messages)
+                        "image_url": {"url": screenshot_to_dataurl(self.screenshot_annotated)},
+                    }
+                ]
+            self.actor_message_manager._remove_last_AIntool_message()
+            self.actor_message_manager._remove_last_state_message()
+            self.actor_message_manager.add_state_message(state_content, self._last_result, step_info)
             
-            self.last_goal = model_output.current_state.next_goal
-            information_stored = model_output.current_state.information_stored
+            input_messages = self.actor_message_manager.get_messages()
+            model_output, raw = await self.get_next_action(input_messages)
+
+            self.last_goal = self.next_goal
             if self.register_new_step_callback:
                 self.register_new_step_callback(state, model_output, self.n_steps)
-            self._save_agent_conversation(input_messages, model_output,step=self.n_steps)
+            self._save_agent_conversation(input_messages, model_output, step=self.n_steps)
 
-            self.agent_message_manager._remove_last_state_message()
-            self.agent_message_manager.add_model_output(model_output)
-
+            self.actor_message_manager._remove_last_state_message()
+            self.actor_message_manager.add_model_output(model_output)
             
             self.last_step_action = [action.model_dump(exclude_unset=True) for action in model_output.action] if model_output else []
             # join the self.state_memory and the self.last_goal
@@ -417,12 +402,9 @@ class Agent:
             result = await self.controller.multi_act(
                 model_output.action,
                 self.mac_tree_builder,
-                action_valid=True # Set to True temporarily, halusination checker
+                action_valid=True
             )
             self._last_result = result
-            if information_stored != 'None':
-                self.infor_memory.append({f'Step {self.n_steps}, the information stored is: {information_stored}'})
-            
             if self.use_ui:
                 for i in range(len(model_output.action)):
                     if 'open_app' in str(model_output.action[i]):
@@ -434,7 +416,6 @@ class Agent:
                 self.wait_this_step = True
             else:
                 self.wait_this_step = False
-                logger.info(f'This step is a wait action, skipping the memory saving')
             if self.last_step_action and not self.wait_this_step:
                 self.state_memory[f'Step {self.n_steps}'] = f'Goal: {self.last_goal}'
                 self.state_memory[f'Step {self.n_steps} is'] = '(success)'
@@ -445,11 +426,9 @@ class Agent:
                     first_key = next(iter(self.goal_action_memory))
                     del self.goal_action_memory[first_key]
                 self.short_memory = f'The important memory: {self.state_memory}. {self.goal_action_memory}'
-
         except Exception as e:
             result = await self._handle_step_error(e)
             self._last_result = result
-
         finally:
             if result:
                 self._make_history_item(model_output, state, result)
