@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import List, Optional
 from langchain_core.messages import HumanMessage, SystemMessage
 from src.agent.views import ActionResult, AgentStepInfo
+from src.windows.openapp import list_applications
 import logging
 logger = logging.getLogger(__name__)
 import pyautogui
@@ -56,6 +57,7 @@ class SystemPrompt:
 
 **Open App**
 - **Must** use the `open_app` action to open initial app or switch apps even you can click on it.  
+- The app you can open in this environment are:{', '.join(list_applications())}.
             """
             )
 
