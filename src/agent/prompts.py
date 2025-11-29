@@ -65,7 +65,7 @@ class SystemPrompt:
 
 **Responsibilities**
 1. Follow the user's instruction using available actions (DO **NOT** USE TWO SINGLE CLICKS AT THE SAME POSITION, i.e., **NO DOUBLE-CLICK**):  
- `{self.action_descriptions}`, For actions that take no parameters (done, wait, record_info) set the value to an empty object *{{}}*
+ `{self.action_descriptions}`, For actions that take no parameters (done, wait) set the value to an empty object *{{}}*
 2. Update **evaluation_previous_goal** based on the current state and previous goal.
 3. If an action fails twice, switch methods.  
 4. **All coordinates are normalized to 0–1000. You MUST output normalized positions.**

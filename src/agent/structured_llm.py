@@ -24,7 +24,7 @@ class ActionItem(BaseModel):
     move_mouse: Optional[MoveToAction] = None
     scroll_up: Optional[ScrollUpAction] = None
     scroll_down: Optional[ScrollDownAction] = None
-    record_info: Optional[NoParamsAction] = None
+    record_info: Optional[RecordAction] = None
     wait: Optional[NoParamsAction] = None
 
     def __repr__(self) -> str:
@@ -32,7 +32,7 @@ class ActionItem(BaseModel):
         field_strs = ", ".join(f"{k}={v!r}" for k, v in non_none.items())
         return f"{self.__class__.__name__}({field_strs})"
     
-    @field_validator("wait", "record_info", mode="before")
+    @field_validator("wait", mode="before")
     def fix_empty_string(cls, v):
         if v == "" or v is None:
             return {}             # an empty dict is valid input for NoParamsAction

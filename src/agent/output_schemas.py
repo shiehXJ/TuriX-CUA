@@ -114,7 +114,9 @@ class OutputSchemas:
 
                     # ----- memory + wait -----
                     "record_info": {"type": "object",
-                        "properties": {"text": {"type": "string"}}},
+                        "properties": {"text": {"type": "string"}},
+                        "required": ["text"]
+                        },
                     "wait": {"type": "object",
                         "properties": {"text": {"type": "string"}}},
                 },

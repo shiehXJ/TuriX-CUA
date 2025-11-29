@@ -444,9 +444,9 @@ class Agent:
             logger.error(f'{prefix}{error_msg}')
             if 'Max token limit reached' in error_msg:
                 # Possibly reduce tokens from history
-                self.agent_message_manager.max_input_tokens -= 500
-                logger.info(f'Reducing agent max input tokens: {self.agent_message_manager.max_input_tokens}')
-                self.agent_message_manager.cut_messages()
+                self.actor_message_manager.max_input_tokens -= 500
+                logger.info(f'Reducing agent max input tokens: {self.actor_message_manager.max_input_tokens}')
+                self.actor_message_manager.cut_messages()
             elif 'Could not parse response' in error_msg:
                 error_msg += '\n\nReturn a valid JSON object with the required fields.'
             self.consecutive_failures += 1
@@ -499,15 +499,15 @@ class Agent:
     
 
     def _log_response(self, response: AgentOutput) -> None:
-        if 'Success' in response.current_state.evaluation_previous_goal:
+        if 'Success' in self.current_state.step_evaluate:
             emoji = '✅'
-        elif 'Failed' in response.current_state.evaluation_previous_goal:
+        elif 'Failed' in self.current_state.step_evaluate:
             emoji = '❌'
         else:
             emoji = '🤷'
-        logger.info(f'{emoji} Eval: {response.current_state.evaluation_previous_goal}')
+        logger.info(f'{emoji} Eval: {self.current_state.step_evaluate}')
         logger.info(f'🧠 Memory: {self.state_memory}')
-        logger.info(f'🎯 Next goal: {response.current_state.next_goal}')
+        logger.info(f'🎯 Goal to achieve this step: {self.next_goal}')
         for i, action in enumerate(response.action):
             logger.info(f'🛠️  Action {i + 1}/{len(response.action)}: {action.model_dump_json(exclude_unset=True)}')
 
