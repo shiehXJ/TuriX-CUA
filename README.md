@@ -48,7 +48,7 @@ Ready to level up? Update your `config.json` and start automating—happy hackin
 
 **September 30, 2025** - 🎉 Exciting update! We've just released our latest AI model on the [TuriX API platform](https://turixapi.io), bringing enhanced performance, smarter reasoning, and seamless integration for even more powerful desktop automation. Developers and researchers, this is your cue—head over to the platform to access it now and elevate your workflows!
 
-*Stay tuned to our [Discord](https://discord.gg/BRxXtnGg) for tips, user stories, and the next big drop.*
+*Stay tuned to our [Discord](https://discord.gg/vkEYj4EV2n) for tips, user stories, and the next big drop.*
 
 ---
 
