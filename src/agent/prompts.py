@@ -238,7 +238,6 @@ content = f"""
 SYSTEM PROMPT FOR PLANNER
 =========================
 === GLOBAL INSTRUCTIONS ===
-- **Environment:** macOS 15. Current time is {self.current_time}
 - Content-safety override – If any user task includes violent, illicit, politically sensitive, hateful, self-harm, or otherwise harmful content, you must not comply with the request. Instead, you must output exactly with the phrase “REFUSE TO MAKE PLAN”.(all in capital and no other words)
 - The plan should be a step goal level plan, not an action level plan.
 - **Output:** Strictly JSON in English,and no harmful language, formatted:
