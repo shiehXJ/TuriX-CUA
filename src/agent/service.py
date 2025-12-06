@@ -458,6 +458,9 @@ class Agent:
         try:
             self._log_agent_run()
 
+            if not self.resume and self.planner_llm:
+                await self.edit()
+                
             for step in range(max_steps):
                 if self.resume:
                     self.load_memory()
@@ -487,6 +490,26 @@ class Agent:
             logger.error(f'Stopping due to {self.max_failures} consecutive failures')
             return True
         return False
+    
+    async def edit(self):
+        response = await self.planner.edit_task()
+        self._set_new_task(response)
+
+    PREFIX = "The overall user's task is: "
+    SUFFIX = "The step by step plan is: "
+
+    def _set_new_task(self, generated_plan: str) -> None:
+        """
+        Build the final task string:
+            "The overall plan is: <original task>\n\n<generated plan>"
+        and update every MessageManager in one go.
+        """
+        if generated_plan.startswith(self.PREFIX):
+            final_task = generated_plan
+        else:
+            final_task = f"{self.PREFIX}{self.original_task}\n{self.SUFFIX}\n{generated_plan}"
+        self.task = final_task
+        self.initiate_messages()
 
 
     def save_history(self, file_path: Optional[str | Path] = None) -> None:
