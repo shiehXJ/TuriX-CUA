@@ -481,9 +481,6 @@ class Agent:
         except Exception:
             logger.exception('Error running agent')
             raise
-        finally:
-            if hasattr(self, '_grpc_channel'):
-                await self._grpc_channel.close()
 
     def _too_many_failures(self) -> bool:
         if self.consecutive_failures >= self.max_failures:
