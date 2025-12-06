@@ -82,6 +82,7 @@ class Agent:
         llm: BaseChatModel,
         short_memory_len : int,
         controller: Controller = Controller(),
+        planner_llm: BaseChatModel | None = None,   
         save_conversation_path: Optional[str] = None,
         save_conversation_path_encoding: Optional[str] = 'utf-8',
         max_failures: int = 5,
@@ -114,6 +115,7 @@ class Agent:
         self.task = task
         self.resume = resume
         self.llm = to_structured(llm, OutputSchemas.AGENT_RESPONSE_FORMAT, AgentStepOutput)
+        self.planner_llm = planner_llm
         self.save_conversation_path = save_conversation_path
         self.save_conversation_path_encoding = save_conversation_path_encoding
         self.include_attributes = include_attributes

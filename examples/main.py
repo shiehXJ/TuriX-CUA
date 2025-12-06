@@ -183,6 +183,7 @@ def main(config_path: str = "config.json"):
             pass
     # --- Build LLM & Agent --------------------------------------------------
     llm = build_llm(cfg["llm"])
+    planner_llm = build_llm(cfg["planner_llm"])
     agent_cfg = cfg["agent"]
     controller = Controller()
 
@@ -192,6 +193,7 @@ def main(config_path: str = "config.json"):
     agent = Agent(
         task=agent_cfg["task"],
         llm=llm,
+        planner_llm=planner_llm,
         short_memory_len=agent_cfg.get("short_memory_len", 5),
         controller=controller,
         max_actions_per_step=agent_cfg.get("max_actions_per_step", 5),
