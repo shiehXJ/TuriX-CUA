@@ -440,9 +440,9 @@ class Agent:
                 self.goal_action_memory[f'Step {self.n_steps}'] = f'Goal: {self.last_goal}, Actions: {self.last_step_action}'
                 self.goal_action_memory[f'Step {self.n_steps} is'] = f'(success)'
 
-                if len(self.goal_action_memory) > self.short_memory_len:
-                    first_key = next(iter(self.goal_action_memory))
-                    del self.goal_action_memory[first_key]
+                # if len(self.goal_action_memory) > self.short_memory_len:
+                #     first_key = next(iter(self.goal_action_memory))
+                #     del self.goal_action_memory[first_key]
                 self.short_memory = f'The important memory: {self.state_memory}. {self.goal_action_memory}'
         except Exception as e:
             result = await self._handle_step_error(e)
