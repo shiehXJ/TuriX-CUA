@@ -48,7 +48,7 @@ class Analysis(BaseModel):
     analysis: str = Field(..., description="Detailed analysis of how the current state matches the expected state.")
 
 class CurrentState(BaseModel):
-    evaluation_previous_goal: str = Field(..., description="Success/Failed (based on step completion)")
+    step_evaluate: str = Field(..., description="Success/Failed (based on step completion)")
     ask_human: str = Field(..., description="Describe what you want user to do or No (No if nothing to ask for comfirmation. If something is unclear, ask the user for confirmation, like ask the user to login, or comfirm preference.)")
     next_goal: str = Field(..., description="Goal of this step based on actions, ONLY DESCRIBE THE EXPECTED ACTIONS RESULT OF THIS STEP")
 
