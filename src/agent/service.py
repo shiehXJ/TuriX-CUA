@@ -392,6 +392,7 @@ class Agent:
             self._save_brain_conversation(brain_messages, parsed, step=self.n_steps)
             self.brain_context[self.n_steps] = parsed
             self.next_goal = parsed['current_state']['next_goal']
+            self.brain_thought = parsed["analysis"]
             self.current_state = parsed['current_state']
 
         except Exception as e:
@@ -425,7 +426,8 @@ class Agent:
                     state_content = [
                         {
                             "type": "text",
-                            "content": f"Previous step is {prev_step_id}.\n\nYour goal to achieve in this step is: {self.next_goal}\n\nNecessary information remembered is: {self.infor_memory}\n\nCurrent UI state:\n{state}"
+                            "content": f"Previous step is {prev_step_id}.\n\nYour goal to achieve in this step is: {self.next_goal}\n\n"
+                                        f"Analysis to the current screen is: {self.brain_thought}.\n\nNecessary information remembered is: {self.infor_memory}\n\nCurrent UI state:\n{state}"
                         },
                         {
                             "type": "image_url",
@@ -438,7 +440,8 @@ class Agent:
                             "type": "text",
                             "content": (
                                 f"Necessary information remembered is: {self.infor_memory}\n\n"
-                                f"Your goal to achieve in this step is: {self.next_goal}\n\n"   
+                                f"Analysis to the current screen is: {self.brain_thought}.\n\n"
+                                f"Your goal to achieve in this step is: {self.next_goal}\n\n"
                             )
                         },
                         {
@@ -450,7 +453,7 @@ class Agent:
                 state_content = [
                     {
                         "type": "text",
-                        "content": f"your goal to achieve in this step is: {self.next_goal}"
+                        "content": f"Analysis to the current screen is: {self.brain_thought}. Your goal to achieve in this step is: {self.next_goal}"
                     },
                     {
                         "type": "image_url",
