@@ -116,7 +116,7 @@ def main(config_path: str = "config.json"):
     brain_llm = build_llm(cfg["brain_llm"])
     actor_llm = build_llm(cfg["actor_llm"])
     memory_llm = build_llm(cfg["memory_llm"])
-    if not use_plan:
+    if use_plan:
         planner_llm = build_llm(cfg["planner_llm"])
     else:
         planner_llm = None
