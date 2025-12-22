@@ -298,7 +298,7 @@ class Controller:
 			'Press Multiple Hotkey',
 			param_model=PressCombinedAction,
 		)
-		async def multi_Hotkey(key1: str, key2: str, key3: str):
+		async def multi_Hotkey(key1: str, key2: str, key3: Optional[str] = None):
 			def clean_key(raw: str | None) -> str | None:
 				"""Strip the `Key.` prefix and any stray quote marks."""
 				if raw is None:
