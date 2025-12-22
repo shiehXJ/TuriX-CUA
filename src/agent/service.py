@@ -478,15 +478,15 @@ class Agent:
 
                 await self.step()
 
-                if self.history.is_done():
+                if self.histories.is_done():
                     logger.info('✅ Task completed successfully')
                     if self.register_done_callback:
-                        self.register_done_callback(self.history)
+                        self.register_done_callback(self.histories)
                     break
             else:
                 logger.info('❌ Failed to complete task in maximum steps')
 
-            return self.history
+            return self.histories
         except Exception:
             logger.exception('Error running agent')
             raise

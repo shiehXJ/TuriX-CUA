@@ -18,7 +18,7 @@ from src.controller.views import (
 	ScrollUpAction,
 	MoveToAction
 )
-from src.helpers.actions import type_into, press, _scroll_invisible_at_position, move_to, left_click_pixel, right_click_pixel, press_combination, drag_pixel
+from src.mac.actions import type_into, press, _scroll_invisible_at_position, move_to, left_click_pixel, right_click_pixel, press_combination, drag_pixel
 from src.utils import time_execution_async, time_execution_sync
 logger = logging.getLogger(__name__)
 
