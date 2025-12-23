@@ -9,6 +9,7 @@ from src.controller.registry.views import (
 	ActionRegistry,
 	RegisteredAction,
 )
+from src.mac.tree import MacUITreeBuilder
 
 class Registry:
 	"""Service for registering and managing actions"""
@@ -34,6 +35,7 @@ class Registry:
 		self,
 		description: str,
 		param_model: Optional[Type[BaseModel]] = None,
+		requires_mac_builder: bool = False,
 	):
 		"""Decorator for registering actions"""
 
@@ -59,13 +61,14 @@ class Registry:
 				description=description,
 				function=wrapped_func,
 				param_model=actual_param_model,
+				requires_mac_builder=requires_mac_builder,
 			)
 			self.registry.actions[func.__name__] = action
 			return func
 
 		return decorator
 
-	async def execute_action(self, action_name: str, params: dict) -> Any:
+	async def execute_action(self, action_name: str, params: dict, mac_tree_builder: Optional[MacUITreeBuilder] = None) -> Any:
 		"""Execute a registered action"""
 		if action_name not in self.registry.actions:
 			raise ValueError(f'Action {action_name} not found')

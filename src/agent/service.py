@@ -480,8 +480,6 @@ class Agent:
 
                 if self.histories.is_done():
                     logger.info('✅ Task completed successfully')
-                    if self.register_done_callback:
-                        self.register_done_callback(self.histories)
                     break
             else:
                 logger.info('❌ Failed to complete task in maximum steps')
