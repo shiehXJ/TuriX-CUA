@@ -105,6 +105,7 @@ class Agent:
         ],
         max_error_length: int = 400,
         max_actions_per_step: int = 5,
+        register_new_step_callback: Callable[['str', 'AgentOutput', int], None] | None = None,
         register_done_callback: Callable[['AgentHistoryList'], None] | None = None,
         tool_calling_method: Optional[str] = 'auto',
         agent_id: Optional[str] = None,
@@ -115,8 +116,8 @@ class Agent:
         self.original_task = task
         self.task = task
         self.resume = resume
+        self.planner_llm = to_structured(planner_llm, OutputSchemas.PLANNER_RESPONSE_FORMAT, PlannerOutput)
         self.llm = to_structured(llm, OutputSchemas.AGENT_RESPONSE_FORMAT, AgentStepOutput)
-        self.planner_llm = planner_llm
         self.save_conversation_path = save_conversation_path
         self.save_conversation_path_encoding = save_conversation_path_encoding
         self.include_attributes = include_attributes
@@ -142,6 +143,7 @@ class Agent:
         self.tool_calling_method = self.set_tool_calling_method(tool_calling_method)
         self.initiate_messages()
         self._last_result = None
+        self.register_new_step_callback = register_new_step_callback
         self.register_done_callback = register_done_callback
 
         # Agent run variables
@@ -156,10 +158,13 @@ class Agent:
         self.long_memory = ''
         self.infor_memory = []
 
-        self.planner = Planner(
-            planner_llm=self.planner_llm,
-            task=self.task,
-        )
+        self.planner = None
+        if self.planner_llm:
+            self.planner = Planner(
+                planner_llm=self.planner_llm,
+                task=self.task,
+                max_input_tokens=self.max_input_tokens,
+            )
 
         if save_conversation_path:
             logger.info(f'Saving conversation to {save_conversation_path}')
@@ -240,16 +245,21 @@ class Agent:
         model_output = None
         result: list[ActionResult] = []     
         try:
+            self.save_memory()
             if self.n_steps >= 2:
                 annotated_screenshot = pyautogui.screenshot()
                 screenshot_filename = f'images/screenshot_{self.n_steps}.png'
                 annotated_screenshot.save(screenshot_filename) 
                 self.screenshot_annotated = annotated_screenshot
+                state_text = (
+                    "The screenshot is provided. The previous action is evaluated to be "
+                    f"{self.evaluation}.\n\n Saved information memory: {self.infor_memory}\n\n"
+                    f"The action and goal you have done is:{self.long_memory}"
+                )
                 state_content = [
                     {
                         "type": "text",
-                        "content": f"The screenshot is provided. The previous action is evaluated to be {self.evaluation}.\n\n Saved information memory: {self.infor_memory}\n\n"
-                        f"The action and goal you have done is:{self.long_memory}"
+                        "content": state_text
                     },
                     {
                         "type": "image_url",
@@ -260,10 +270,11 @@ class Agent:
                 screenshot = pyautogui.screenshot()
                 self.screenshot_annotated = screenshot
                 screenshot.save(f'images/screenshot_{self.n_steps}.png')
+                state_text = "The screenshot is provided."
                 state_content = [
                     {
                         "type": "text",
-                        "content": f"The screenshot is provided."
+                        "content": state_text
                     },
                     {
                         "type": "image_url",
@@ -281,6 +292,8 @@ class Agent:
             self.last_goal = model_output.current_state.next_goal
             self.evaluation = model_output.current_state.evaluation_previous_goal
             information_stored = model_output.current_state.information_stored
+            if self.register_new_step_callback:
+                self.register_new_step_callback(state_text, model_output, self.n_steps)
             self._save_agent_conversation(input_messages, model_output,step=self.n_steps)
 
             self.agent_message_manager._remove_last_state_message()
@@ -466,6 +479,8 @@ class Agent:
                     self.resume = False
                 if self._too_many_failures():
                     break
+                if not await self._handle_control_flags():
+                    break
                 await self.step()
                 if self.history.is_done():
                     logger.info('Task completed successfully')
@@ -486,6 +501,18 @@ class Agent:
             logger.error(f'Stopping due to {self.max_failures} consecutive failures')
             return True
         return False
+
+    async def _handle_control_flags(self) -> bool:
+        if self._stopped:
+            logger.info('Agent stopped')
+            return False
+
+        while self._paused:
+            await asyncio.sleep(0.2)
+            if self._stopped:
+                return False
+
+        return True
     
     async def edit(self):
         response = await self.planner.edit_task()
@@ -524,4 +551,3 @@ class Agent:
             max_error_length=self.max_error_length,
             max_actions_per_step=self.max_actions_per_step,
         )
-

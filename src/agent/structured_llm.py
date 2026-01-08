@@ -89,3 +89,34 @@ class AgentStepOutput(BaseModel):
         facilitating direct access to structured data.
         """
         return self.model_dump(exclude_none=True, exclude_unset=True)
+
+class PlannerOutput(BaseModel):
+    step_by_step_plan: Union[List[str], str] = Field(
+        ...,
+        description="Either an ordered plan (array) or the literal refusal sentence."
+    )
+
+    @validator("step_by_step_plan")
+    def _validate_steps_or_refusal(cls, v):
+        if isinstance(v, list):
+            pat = re.compile(r"^Step \d+:")
+            for s in v:
+                if not pat.match(s):
+                    raise ValueError("Each entry must start with 'Step N: '.")
+        else:
+            if v.strip().upper() != "REFUSE TO MAKE PLAN":
+                raise ValueError(
+                    "If a string, it must be exactly 'REFUSE TO MAKE PLAN'."
+                )
+        return v
+
+    @property
+    def content(self) -> str:
+        return "\n".join(v for v in self.step_by_step_plan) \
+               if isinstance(self.step_by_step_plan, list) \
+               else self.step_by_step_plan
+
+__all__ = [
+    "AgentStepOutput",
+    "PlannerOutput",
+]

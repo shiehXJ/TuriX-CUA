@@ -149,3 +149,31 @@ class OutputSchemas:
         }
     }
 
+    PLANNER_SCHEMA = {
+        "anyOf": [
+            {
+                "type": "object",
+                "properties": {
+                    "step_by_step_plan": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "minItems": 1
+                    }
+                },
+                "required": ["step_by_step_plan"]
+            },
+            {
+                "type": "string",
+                "enum": ["REFUSE TO MAKE PLAN"]
+            }
+        ]
+    }
+
+    PLANNER_RESPONSE_FORMAT = {
+        "type": "json_schema",
+        "json_schema": {
+            "name": "planner_output",
+            "strict": True,
+            "schema": PLANNER_SCHEMA
+        }
+    }
