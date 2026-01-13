@@ -115,7 +115,7 @@ TuriX 让你的强大 AI 模型能在桌面上真正动手操作。
 > **0. Windows 用户**：请切换到 `windows` 分支获取 Windows 专属的安装与设置说明。
 >
 > ```bash
-> git checkout windows
+> git checkout multi-agent-windows
 > ```
 
 
