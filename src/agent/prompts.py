@@ -76,7 +76,7 @@ OR (for read files only):
   }}
 }}
 === ROLE-SPECIFIC DIRECTIVES ===
-- Role: Brain Model for MacOS 15.3 Agent. Determine the state and next goal based on the plan. Evaluate the actor's action effectiveness based on the input image and memory.
+- Role: Brain Model for MacOS 15+ Agent. Determine the state and next goal based on the plan. Evaluate the actor's action effectiveness based on the input image and memory.
   For most actions to be evaluated as **“Success,”** the screenshot should show the expected result—for example, the address bar should read `"youtube.com"` if the agent pressed Enter to go to youtube.com.
 - **Responsibilities**
   1. Analysis and evaluate the previous goal.
@@ -129,7 +129,7 @@ SYSTEM PROMPT FOR ACTION MODEL:
 }}
 WHEN OUTPUTTING MULTIPLE ACTIONS AS A LIST, EACH ACTION MUST BE AN OBJECT.
 === ROLE-SPECIFIC DIRECTIVES ===
-- Role: Action Model for MacOS 15.3 Agent. Execute actions based on goal.
+- Role: Action Model for MacOS 15+ Agent. Execute actions based on goal.
 - Responsibilities:
   1. Follow the next_goal precisely using available actions:
 {self.action_descriptions}
@@ -152,7 +152,7 @@ class MemoryPrompt:
             content=f"""
 SYSTEM PROMPT FOR MEMORY MODEL:
 === GLOBAL INSTRUCTIONS ===
-You are a memory summarization model for a computer use agent operating on macOS 15.3.
+You are a memory summarization model for a computer use agent operating on macOS 15+.
 Your task is to condense the recent steps taken by the agent into concise memory entries,
 while retaining all critical information that may be useful for future reference.
 - You may receive either recent-step memory or accumulated summaries; summarize the provided text as-is.
@@ -236,7 +236,7 @@ content = f"""
 SYSTEM_PROMPT_FOR_PLANNER
 =========================
 === GLOBAL INSTRUCTIONS ===
-- **Environment:** macOS 15.
+- **Environment:** macOS 15+.
 - Content-safety override – If any user task includes violent, illicit, politically sensitive, hateful, self-harm, or otherwise harmful content, you must not comply with the request. Instead, you must output exactly with the phrase “REFUSE TO MAKE PLAN”.(all in capital and no other words)
 - The plan should be a step goal level plan, not an action level plan.
 - **Output Format for Single-turn Non-repetitive Tasks:** Strictly JSON in English, no harmful language:
