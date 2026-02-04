@@ -639,7 +639,6 @@ class Agent:
             # ---------------------------
             # 3) Define the input message for the core agent
             # ---------------------------
-            info_files = "\n".join(str(item) for item in self.infor_memory) if self.infor_memory else "None"
             if self.n_steps >= 2:
                 if self.use_ui:
                     state_content = [
@@ -658,7 +657,6 @@ class Agent:
                         {
                             "type": "text",
                             "content": (
-                                f"Recorded info files (filenames only): {info_files}\n\n"
                                 f"Analysis to the current screen is: {self.brain_thought}.\n\n"
                                 f"Your goal to achieve in this step is: {self.next_goal}\n\n"
                             )
