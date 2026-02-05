@@ -29,7 +29,7 @@ TuriX 让你的强大 AI 模型能在桌面上真正动手操作。
 
 ## 目录
 - [📞 联系方式与社区](#contact-community)
-- [🤖 ClawDBot 技能](#clawdbot-skill)
+- [🤖 OpenClaw 技能](#openclaw-skill)
 - [📰 最新动态](#latest-news)
 - [🖼️ 演示](#demos)
 - [✨ 关键特性](#key-features)
@@ -47,20 +47,20 @@ TuriX 让你的强大 AI 模型能在桌面上真正动手操作。
 
 ---
 
-## <a id="clawdbot-skill"></a>🤖 ClawDBot 技能
+## <a id="openclaw-skill"></a>🤖 OpenClaw 技能
 
-通过 ClawDBot 使用 TuriX 的 ClawHub Skills：  
-https://clawdhub.com/Tongyu-Yan/turix-computer-use  
-这让 ClawDBot 可以调用 TuriX，作为你的桌面操作 Agent。
+通过 OpenClaw 使用 TuriX 的 ClawHub Skills：  
+https://clawhub.ai/Tongyu-Yan/turix-cua  
+这让 OpenClaw 可以调用 TuriX，作为你的桌面操作 Agent。
 
 本仓库还提供 OpenCLaw 的本地技能包（macOS），位于 `OpenCLaw_TuriX_skill/`（包含 `SKILL.md` 与 `scripts/run_turix.sh`）。  
-将其复制到你的 ClawDBot 本地技能目录（例如：`clawd/skills/local/turix-mac/`），并参考 `OpenCLaw_TuriX_skill/README.md` 完成安装与权限设置。
+将其复制到你的 OpenClaw 本地技能目录（例如：`clawd/skills/local/turix-mac/`），并参考 `OpenCLaw_TuriX_skill/README.md` 完成安装与权限设置。
 
 ---
 
 ## <a id="latest-news"></a>📰 最新动态
 
-**2026 年 1 月 30 日** - 🧩 我们在 ClawHub 发布了 **TuriX ClawDBot 技能**。你现在可以使用 ClawDBot 调用 TuriX 来完成桌面自动化任务。
+**2026 年 1 月 30 日** - 🧩 我们在 ClawHub 发布了 **TuriX OpenClaw 技能**：https://clawhub.ai/Tongyu-Yan/turix-cua。你现在可以使用 OpenClaw 调用 TuriX 来完成桌面自动化任务。
 
 **2026 年 1 月 27 日 — v0.3** - 🎉 TuriX v0.3 已在 main 分支发布！本次更新带来 DuckDuckGo 搜索、Ollama 支持、先进的可恢复内存压缩，以及 Skills（技能手册），让规划更智能、记忆更稳健、工作流更可复用。欢迎更多用户体验并分享反馈，我们会持续推进平台进化。
 
@@ -354,7 +354,7 @@ python examples/main.py
 | **2026 Q1** | **✅ Ollama 支持** | 支持 Ollama Qwen3vl 模型 |
 | **2026 Q1** | **✅ 可恢复的内存压缩** | 推进内存管理机制，稳定性能（上传了测试版，待验证稳定性） |
 | **2026 Q1** | **✅ Skills** | 让CUA的执行流程更标准化，稳定 |
-| **2026 Q1** | **OpenClaw（ClawDBot）技能** | 集成 ClawDBot（OpenClaw），作为clawdbot的眼睛和手，执行电脑任务。让你的OpenClaw成为完整的数字员工。 |
+| **2026 Q1** | **✅ OpenClaw 技能** | 已在 ClawHub 发布（https://clawhub.ai/Tongyu-Yan/turix-cua），让 OpenClaw 调用 TuriX 作为眼睛和手执行电脑任务。 |
 | **2026 Q1** | **浏览器自动化** | 支持类 Chrome 浏览器以提升可扩展性 |
 | **2026 Q1** | **长期记忆** | 学习用户偏好并跨会话保留任务历史 |
 | **2026 Q2** | **示范学习** | 通过展示你偏好的方法与流程来训练Agent模型 |

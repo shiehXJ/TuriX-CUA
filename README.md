@@ -25,7 +25,7 @@ Prefer your own model? **Change in `config.json` and go.**
 
 ## Table of Contents
 - [📞 Contact & Community](#-contact--community)
-- [🤖 ClawDBot Skill](#-clawdbot-skill)
+- [🤖 OpenClaw Skill](#-openclaw-skill)
 - [📰 Latest News](#-latest-news)
 - [🖼️ Demos](#️-demos)
 - [✨ Key Features](#-key-features)
@@ -43,20 +43,20 @@ Prefer your own model? **Change in `config.json` and go.**
 
 ---
 
-## 🤖 ClawDBot Skill
+## 🤖 OpenClaw Skill
 
-Use TuriX via ClawDBot with our published skill on ClawHub:  
-https://clawdhub.com/Tongyu-Yan/turix-computer-use  
-This lets ClawDBot call TuriX so it can act as your desktop agent.
+Use TuriX via OpenClaw with our published skill on ClawHub:  
+https://clawhub.ai/Tongyu-Yan/turix-cua  
+This lets OpenClaw call TuriX so it can act as your desktop agent.
 
 Local OpenCLaw skill (macOS): this repo also includes a ready-to-use skill package in `OpenCLaw_TuriX_skill/` (`SKILL.md` + `scripts/run_turix.sh`).  
-Copy it into your ClawDBot local skills folder (for example: `clawd/skills/local/turix-mac/`) and follow `OpenCLaw_TuriX_skill/README.md` for setup and permissions.
+Copy it into your OpenClaw local skills folder (for example: `clawd/skills/local/turix-mac/`) and follow `OpenCLaw_TuriX_skill/README.md` for setup and permissions.
 
 ---
 
 ## 📰 Latest News
 
-**January 30, 2026** - 🧩 We published the **TuriX ClawDBot Skill** on ClawHub. You can now use ClawDBot to call TuriX and automate desktop tasks.
+**January 30, 2026** - 🧩 We published the **TuriX OpenClaw Skill** on ClawHub: https://clawhub.ai/Tongyu-Yan/turix-cua. You can now use OpenClaw to call TuriX and automate desktop tasks.
 
 **January 27, 2026 — v0.3** - 🎉 TuriX v0.3 is now live on the main branch! This release brings DuckDuckGo search, Ollama support, advanced recoverable memory compression, and Skills—unlocking smarter planning, more resilient memory, and reusable workflows for desktop automation. We’re excited to see more users try it out and share feedback as we keep pushing the platform forward.
 
@@ -353,7 +353,7 @@ For bug reports and feature requests, please [open an issue](https://github.com/
 | **2026 Q1** | **✅ Ollama Support** | Support the Ollama Qwen3vl models |
 | **2026 Q1** | **✅ Recoverable Memory Compression** | Advance memory management mechanism to stabelize performance (Commited beta version) |
 | **2026 Q1** | **✅ Skills** | Stablize the agent workflow. |
-| **2026 Q1** | **OpenClaw (ClawDBot) Skill** | As a skill of clawdbot, so that we act as the eyes and hands of openclaw. Make your OpenClaw the real digital-labour |
+| **2026 Q1** | **✅ OpenClaw Skill** | Published on ClawHub (https://clawhub.ai/Tongyu-Yan/turix-cua) so OpenClaw can use TuriX as its eyes and hands. |
 | **2026 Q1** | **Browser Automation** | Support a Chrome-like browser for scalability |
 | **2026 Q1** | **Persistent Memory** | Learn user preferences and maintain task history across sessions |
 | **2026 Q2** | **Learning by Demonstration** | Train the agent by showing it your preferred methods and workflows |
