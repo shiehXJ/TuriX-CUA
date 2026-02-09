@@ -290,6 +290,8 @@ class Agent:
         self.brain_memory = ''
         self.summary_memory = ''
         self.recent_memory = ''
+        # Pending step lines should not participate in memory budget/summarization until finalized.
+        self.pending_recent_memory = ''
         self.memory_snapshot_files: list[dict[str, Any]] = []
         self.infor_memory = []
         self.last_pid = None
@@ -335,6 +337,8 @@ class Agent:
             parts.append("Summarized memory:\n" + self.summary_memory)
         if self.recent_memory:
             parts.append("Recent steps:\n" + self.recent_memory)
+        if self.pending_recent_memory:
+            parts.append("Pending steps:\n" + self.pending_recent_memory)
         self.brain_memory = "\n\n".join(parts).strip()
 
     def _extract_memory_payload(self, response: Any) -> dict:
@@ -456,14 +460,16 @@ class Agent:
         # logger.debug(f"current_state: {current_state}")
         step_goal = current_state['next_goal'] if current_state else None
         # logger.debug(f"step_goal: {step_goal}")
-        evaluation = current_state['step_evaluate'] if current_state else None
+        step_id = sorted_steps[0]
 
-        line = f"Step {sorted_steps[0]} | Eval: {evaluation} | Goal: {step_goal}"
-        self.recent_memory = "\n".join([ln for ln in [self.recent_memory, line] if ln]).strip()
-        if len(self.recent_memory) > self.memory_budget:
-            await self._summarise_recent_memory()
-        else:
-            self._refresh_brain_memory()
+        # Always write the current step as pending. The success/failed signal for step N
+        # arrives in brain_step() of step (N+1). Pending lines do not count toward budget.
+        line = f"Step {step_id} | Eval: pending | Goal: {step_goal}"
+        pending_lines = [ln for ln in self.pending_recent_memory.splitlines() if ln.strip()]
+        pending_lines = [ln for ln in pending_lines if not ln.startswith(f"Step {step_id} |")]
+        pending_lines.append(line)
+        self.pending_recent_memory = "\n".join(pending_lines).strip()
+        self._refresh_brain_memory()
 
     def save_memory(self) -> None:
         """
@@ -480,6 +486,7 @@ class Agent:
             'brain_context': self.brain_context,
             "step": self.n_steps,
             "summary_memory": self.summary_memory,
+            "pending_recent_memory": self.pending_recent_memory,
             "recent_memory": self.recent_memory,
             "summary_memory_budget": self.summary_memory_budget,
             "memory_snapshot_files": self.memory_snapshot_files,
@@ -511,9 +518,25 @@ class Agent:
                 if self.brain_context:
                     self.brain_context = OrderedDict({int(k): v for k, v in self.brain_context.items()})
                 self.summary_memory = data.get("summary_memory", "")
+                self.pending_recent_memory = data.get("pending_recent_memory", "")
                 self.recent_memory = data.get("recent_memory", "")
                 self.summary_memory_budget = data.get("summary_memory_budget", self.summary_memory_budget)
                 self.memory_snapshot_files = data.get("memory_snapshot_files", [])
+                # Back-compat: older runs may have stored pending lines in recent_memory.
+                if self.recent_memory:
+                    recent_lines = [ln for ln in self.recent_memory.splitlines() if ln.strip()]
+                    keep_recent: list[str] = []
+                    move_pending: list[str] = []
+                    for ln in recent_lines:
+                        if "| Eval: pending |" in ln:
+                            move_pending.append(ln)
+                        else:
+                            keep_recent.append(ln)
+                    if move_pending:
+                        self.pending_recent_memory = "\n".join(
+                            [ln for ln in [self.pending_recent_memory, "\n".join(move_pending)] if ln]
+                        ).strip()
+                        self.recent_memory = "\n".join(keep_recent).strip()
                 if "summary_memory" not in data and "recent_memory" not in data:
                     await self._rebuild_memory_from_context()
                 else:
@@ -526,11 +549,34 @@ class Agent:
     async def _rebuild_memory_from_context(self) -> None:
         self.summary_memory = ""
         self.recent_memory = ""
+        self.pending_recent_memory = ""
         self.memory_snapshot_files = []
-        for step_id in sorted(self.brain_context.keys()):
+        step_ids = sorted(self.brain_context.keys())
+        if not step_ids:
+            self._refresh_brain_memory()
+            return
+
+        # In brain_context, step k's `next_goal` is the goal for step k,
+        # and step (k+1)'s `step_evaluate` is the result for step k.
+        last_step = step_ids[-1]
+        for step_id in step_ids:
             current_state = self.brain_context[step_id].get("current_state", {})
-            evaluation = current_state.get("step_evaluate")
             step_goal = current_state.get("next_goal")
+
+            if step_id == last_step:
+                line = f"Step {step_id} | Eval: pending | Goal: {step_goal}"
+                self.pending_recent_memory = "\n".join([ln for ln in [self.pending_recent_memory, line] if ln]).strip()
+                continue
+
+            next_state = self.brain_context.get(step_id + 1, {}).get("current_state", {})
+            raw_eval = str(next_state.get("step_evaluate", "")).lower()
+            if "success" in raw_eval:
+                evaluation = "success"
+            elif "fail" in raw_eval:
+                evaluation = "failed"
+            else:
+                evaluation = "pending"
+
             line = f"Step {step_id} | Eval: {evaluation} | Goal: {step_goal}"
             self.recent_memory = "\n".join([ln for ln in [self.recent_memory, line] if ln]).strip()
             if len(self.recent_memory) > self.memory_budget:
@@ -620,6 +666,41 @@ class Agent:
             self.next_goal = parsed['current_state']['next_goal']
             self.brain_thought = parsed["analysis"]
             self.current_state = parsed['current_state']
+
+            # Finalize the previous step's memory line based on this response's evaluation signal.
+            # Keep step N in pending_recent_memory until step (N+1) arrives, so it won't be summarized away.
+            if prev_step_id >= 1:
+                raw_eval = str(self.current_state.get("step_evaluate", "")).lower()
+                if "success" in raw_eval:
+                    final_status = "success"
+                elif "fail" in raw_eval:
+                    final_status = "failed"
+                else:
+                    final_status = "pending"
+
+                pending_lines = [ln for ln in self.pending_recent_memory.splitlines() if ln.strip()]
+                new_pending: list[str] = []
+                goal_text: Optional[str] = None
+                for ln in pending_lines:
+                    if ln.startswith(f"Step {prev_step_id} |"):
+                        if "| Goal: " in ln:
+                            goal_text = ln.split("| Goal: ", 1)[1].strip()
+                        continue
+                    new_pending.append(ln)
+                self.pending_recent_memory = "\n".join(new_pending).strip()
+
+                if goal_text is not None:
+                    final_line = f"Step {prev_step_id} | Eval: {final_status} | Goal: {goal_text}"
+                    recent_lines = [ln for ln in self.recent_memory.splitlines() if ln.strip()]
+                    recent_lines = [ln for ln in recent_lines if not ln.startswith(f"Step {prev_step_id} |")]
+                    recent_lines.append(final_line)
+                    self.recent_memory = "\n".join(recent_lines).strip()
+                    if len(self.recent_memory) > self.memory_budget:
+                        await self._summarise_recent_memory(step_override=prev_step_id)
+                    else:
+                        self._refresh_brain_memory()
+                else:
+                    self._refresh_brain_memory()
 
         except Exception as e:
             logger.exception("[Brain] Unexpected error in brain_step.")
